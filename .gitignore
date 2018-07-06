@@ -35,3 +35,7 @@ vignettes/*.pdf
 # Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
 rsconnect/
 .Rproj.user
+data/~$G040N13.xlsx
+data/~$G050N13.xlsx
+data/~$G075N13.xlsx
+data/summary/~$Data summary.xlsx
