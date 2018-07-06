@@ -13,9 +13,7 @@ NigmatullinaData <-  NigmatullinaData %>%
     # drop_na() %>%
     mutate(direction = as.factor(direction),
            cue = as.factor(cue),
-           imagery = as.factor(imagery)
-           # imagery_score = ordered(imagery_score)
-           ) %>%
+           imagery = as.factor(imagery)) %>%
     filter(rt < 40)
 
 levels(NigmatullinaData$imagery) <- c("congruent", "neutral", "incongruent")
@@ -54,21 +52,27 @@ ImageryScoreSummary <- NigmatullinaData %>%
     select(participant, imagery, imagery_score) %>%
     drop_na() %>%
     group_by(participant, imagery) %>%
+    # summarise_all(funs(mean,sd, plotrix::std.error))
+
     summarise(mean = round(mean(imagery_score), 2))
 
 
-df_summary %>% ggplot(aes(x = congruency, y = rt, color = participant)) +
+
+
+RTSummary %>% ggplot(aes(x = imagery, y = mean, color = participant)) +
     geom_point() +
     geom_line(aes(group = participant))
 
-df_summary %>% ggplot(aes(x = congruency,
-                          y = nystagmus,
+
+VORSummary %>% ggplot(aes(x = imagery,
+                          y = mean,
                           color = participant)) +
     geom_point() +
     geom_line(aes(group = participant))
 
 
-df_summary %>% ggplot(aes(x = congruency, y = imagery, color = participant)) +
+ImageryScoreSummary %>% ggplot(aes(x = imagery, y = mean,
+                                   color = participant)) +
     geom_point() +
     geom_line(aes(group = participant))
 
