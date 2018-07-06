@@ -1,5 +1,7 @@
-library(tidyverse)
 library(brms)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
 
 colorPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
                   "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
@@ -17,6 +19,7 @@ NigmatullinaData <-  NigmatullinaData %>%
     filter(rt < 40)
 
 levels(NigmatullinaData$imagery) <- c("congruent", "neutral", "incongruent")
+
 
 
 
@@ -56,6 +59,12 @@ ImageryScoreSummary <- NigmatullinaData %>%
 
     summarise(mean = round(mean(imagery_score), 2))
 
+ProportionCorrect <- NigmatullinaData %>%
+    select(participant, imagery, correct) %>%
+    drop_na() %>%
+    group_by(participant, imagery) %>%
+    summarise(mean = mean(correct),
+              sd = sd(correct))
 
 
 
@@ -75,6 +84,7 @@ ImageryScoreSummary %>% ggplot(aes(x = imagery, y = mean,
                                    color = participant)) +
     geom_point() +
     geom_line(aes(group = participant))
+
 
 
 
