@@ -18,8 +18,8 @@ NigmatullinaData <-  NigmatullinaData %>%
            imagery = as.factor(imagery)) %>%
     filter(rt < 40)
 
-levels(NigmatullinaData$imagery) <- c("congruent", "neutral", "incongruent")
-
+NigmatullinaData$imagery <- factor(NigmatullinaData$imagery,
+                                   levels = c("congruent", "neutral", "incongruent"))
 
 
 
