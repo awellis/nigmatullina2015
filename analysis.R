@@ -131,5 +131,25 @@ Summary %>% ggplot(aes(x = imagery, y = mu,
 
 ## brms models ----
 
-fit <- brm(rt ~ imagery)
-NigmatullinaData
+fit <- brm(response ~ direction * cue,
+           family = bernoulli(),
+           data = NigmatullinaData)
+plot(marginal_effects(fit))
+
+# doesn't work
+fit2 <- brm(bf(rt ~ imagery, ndt ~ imagery),
+            family = shifted_lognormal(),
+            data = NigmatullinaData)
+plot(marginal_effects(fit2))
+
+
+# Weibull regression is also a possibility
+# https://en.wikipedia.org/wiki/Weibull_distribution
+
+fit3 <- brm(bf(rt ~ imagery,
+               shape ~ imagery),
+            family = weibull(),
+            data = NigmatullinaData)
+
+plot(marginal_effects(fit3))
+plot(fit3)
