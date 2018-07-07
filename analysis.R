@@ -153,3 +153,18 @@ fit3 <- brm(bf(rt ~ imagery,
 
 plot(marginal_effects(fit3))
 plot(fit3)
+
+
+fit4 <- brm(bf(rt | dec(correct) ~ imagery),
+            family = wiener(),
+            data = NigmatullinaData)
+plot(marginal_effects(fit4))
+plot(fit4)
+
+fit5 <- brm(bf(rt | dec(response) ~ direction*cue,
+               bias ~ cue),
+            family = wiener(),
+            data = NigmatullinaData)
+fit5
+plot(marginal_effects(fit5))
+plot(fit5)
