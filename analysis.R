@@ -10,13 +10,14 @@ library(ggplot2)
 load("data/nigmatullina.Rda")
 
 NigmatullinaData <-  NigmatullinaData %>%
-    select(participant,imagery, direction, cue, direction_num, cue_num,
-           response, correct, rt, nystagmus, imagery_score) %>%
+    select(id,imagery, direction, cue, direction_num, cue_num,
+           response, correct, rt, nystagmus, threshold, imagery_score,
+           vel_post, vel_pre) %>%
     # drop_na() %>%
     mutate(direction = as.factor(direction),
            cue = as.factor(cue),
            imagery = as.factor(imagery)) %>%
-    filter(rt < 40)
+    filter(id != 75)
 
 NigmatullinaData$imagery <- factor(NigmatullinaData$imagery,
                                    levels = c("congruent", "neutral", "incongruent"))
@@ -25,21 +26,53 @@ NigmatullinaData$imagery <- factor(NigmatullinaData$imagery,
 
 ## -----
 
-p_rt <- NigmatullinaData %>% ggplot(aes(x = rt, fill = imagery)) +
+p_rt_1 <- NigmatullinaData %>% ggplot(aes(x = rt, fill = imagery)) +
     # geom_histogram(aes(y = ..density..), binwidth = 1, alpha = 0.8) +
     geom_density(alpha = 0.8) +
-    facet_wrap(~participant) +
+    facet_wrap(~id) +
     scale_fill_viridis_d() +
     theme_bw()
-p_rt
+p_rt_1
 
-p_nystagmus <- NigmatullinaData %>% ggplot(aes(x = nystagmus, fill = imagery)) +
+p_rt_2 <- NigmatullinaData %>% ggplot(aes(x = rt, fill = cue)) +
     # geom_histogram(aes(y = ..density..), binwidth = 1, alpha = 0.8) +
     geom_density(alpha = 0.8) +
-    facet_wrap(~participant) +
+facet_grid(direction ~ id) +
+    scale_fill_viridis_d() +
+    theme_bw()
+p_rt_2
+
+p_threshold <- NigmatullinaData %>% ggplot(aes(x = threshold, fill = imagery)) +
+    # geom_histogram(aes(y = ..density..), binwidth = 1, alpha = 0.8) +
+    geom_density(alpha = 0.8) +
+    facet_wrap(~id) +
+    scale_fill_viridis_d() +
+    theme_bw()
+p_threshold
+
+
+p_nystagmus <- NigmatullinaData %>%
+    ggplot(aes(x = nystagmus, fill = cue)) +
+    # geom_histogram(aes(y = ..density..), binwidth = 1, alpha = 0.8) +
+    geom_density(alpha = 0.8) +
+    # facet_wrap(~id) +
+    facet_grid(direction~id) +
+
     scale_fill_viridis_d() +
     theme_bw()
 p_nystagmus
+
+p_vel_pre <- NigmatullinaData %>%
+    ggplot(aes(x = vel_pre, fill = cue)) +
+    # geom_histogram(aes(y = ..density..), binwidth = 1, alpha = 0.8) +
+    geom_density(alpha = 0.8) +
+    # facet_wrap(~id) +
+    facet_grid(direction~id) +
+
+    scale_fill_viridis_d() +
+    theme_bw()
+p_vel_pre
+
 ## -----
 
 std_error <- function(x) {
@@ -47,67 +80,81 @@ std_error <- function(x) {
 }
 
 RTSummary <- NigmatullinaData %>%
-    select(participant, imagery, rt) %>%
+    select(id, imagery, rt) %>%
     drop_na() %>%
-    group_by(participant, imagery) %>%
+    group_by(id, imagery) %>%
+    summarise_all(funs(mean, median, sd, std_error))
+
+ThresholdSummary <- NigmatullinaData %>%
+    select(id, imagery, threshold) %>%
+    drop_na() %>%
+    group_by(id, imagery) %>%
     summarise_all(funs(mean, median, sd, std_error))
 
 VORSummary <- NigmatullinaData %>%
-    select(participant, imagery, nystagmus) %>%
+    select(id, imagery, nystagmus) %>%
     drop_na() %>%
-    group_by(participant, imagery) %>%
+    group_by(id, imagery) %>%
     summarise_all(funs(mean, median, sd, std_error))
 
 ImageryScoreSummary <- NigmatullinaData %>%
-    select(participant, imagery, imagery_score) %>%
-    group_by(participant, imagery) %>%
+    select(id, imagery, imagery_score) %>%
+    group_by(id, imagery) %>%
     summarise_all(funs(mean, median, sd, std_error)) %>%
     drop_na()
 
 
 ProportionCorrect <- NigmatullinaData %>%
-    select(participant, imagery, correct) %>%
+    select(id, imagery, correct) %>%
     drop_na() %>%
-    group_by(participant, imagery) %>%
+    group_by(id, imagery) %>%
     summarise_all(funs(mean, sd, std_error))
 
 ## ----
 
 RTSummary %>% ggplot(aes(x = imagery, y = mean,
-                         color = participant)) +
+                         color = id)) +
     geom_errorbar(aes(ymin = mean-std_error,
                       ymax = mean+std_error),
                   width = 0.1,
                   position = "identity") +
-    geom_line(aes(group = participant))
+    geom_line(aes(group = id))
 
 # RTSummary %>%
 #     ggplot(aes(x = mean, fill = imagery)) +
 #     geom_histogram(position = "identity", alpha = 0.6)
 
+# ThresholdSummary %>% ggplot(aes(x = imagery, y = mean,
+#                          color = id)) +
+#     # geom_errorbar(aes(ymin = mean-std_error,
+#     #                   ymax = mean+std_error),
+#     #               width = 0.1,
+#     #               position = "identity") +
+#     geom_point() +
+#     geom_line(aes(group = id))
 
 VORSummary %>% ggplot(aes(x = imagery,
                           y = mean,
-                          color = participant)) +
+                          color = id)) +
     geom_point() +
-    geom_line(aes(group = participant))
+    geom_line(aes(group = id))
 
 
 ImageryScoreSummary %>% ggplot(aes(x = imagery, y = mean,
-                                   color = participant)) +
+                                   color = id)) +
     geom_point() +
-    geom_line(aes(group = participant))
+    geom_line(aes(group = id))
 
 
 
 ProportionCorrect %>%
-    # filter(participant != 75) %>%
+    # filter(id != 75) %>%
     ggplot(aes(x = imagery, y = mean,
-                                   color = participant)) +
+                                   color = id)) +
     geom_point() +
-    geom_line(aes(group = participant))
+    geom_line(aes(group = id))
 
-# we should probably remove participant 75
+# we should probably remove id 75
 
 
 ## Nigmatullina figures ----
@@ -161,10 +208,75 @@ fit4 <- brm(bf(rt | dec(correct) ~ imagery),
 plot(marginal_effects(fit4))
 plot(fit4)
 
-fit5 <- brm(bf(rt | dec(response) ~ direction*cue,
-               bias ~ cue),
-            family = wiener(),
-            data = NigmatullinaData)
+
+
+
+## DDM model ----
+
+
+
+formula <- bf(rt | dec(response) ~ 0 + direction:cue + (0 + direction:cue|p|id),
+              bs ~ 0 + cue + (0 + cue|p|id),
+              ndt ~ 0 + cue + (0 + cue|p|id),
+              bias ~ 0 + cue + (0 + cue|p|id))
+
+
+
+
+# get_prior(formula)
+prior <- c(
+    prior("cauchy(0, 5)", class = "b"),
+    set_prior("normal(1.5, 1)", class = "b", dpar = "bs"),
+    set_prior("normal(0.2, 0.1)", class = "b", dpar = "ndt"),
+    set_prior("normal(0.5, 0.2)", class = "b", dpar = "bias")
+)
+
+
+tmp_dat <- make_standata(formula,
+                         family = wiener(link_bs = "identity",
+                                         link_ndt = "identity",
+                                         link_bias = "identity"),
+                         data = NigmatullinaData,
+                         prior = prior)
+
+str(tmp_dat, 1, give.attr = FALSE)
+
+initfun <- function() {
+    list(
+        b = rnorm(tmp_dat$K),
+        b_bs = runif(tmp_dat$K_bs, 1, 2),
+        b_ndt = runif(tmp_dat$K_ndt, 0.1, 0.15),
+        b_bias = rnorm(tmp_dat$K_bias, 0.5, 0.1),
+        sd_1 = runif(tmp_dat$M_1, 0.5, 1),
+        z_1 = matrix(rnorm(tmp_dat$M_1*tmp_dat$N_1, 0, 0.01),
+                     tmp_dat$M_1, tmp_dat$N_1),
+        L_1 = diag(tmp_dat$M_1)
+    )
+}
+
+fit5 <- brm(formula,
+            family = wiener(link_bs = "identity",
+                            link_ndt = "identity",
+                            link_bias = "identity"),
+            data = NigmatullinaData,
+            prior = prior, inits = initfun,
+            iter = 1000, warmup = 500,
+            chains = 4, cores = 4,
+            control = list(max_treedepth = 15))
+
+NPRED <- 500
+
+pred5 <- predict(fit5,
+                       summary = FALSE,
+                       negative_rt = TRUE,
+                       nsamples = NPRED)
+
+
+save(fit5, file = "brms_wiener_fit5.rda",
+     compress = "xz")
+save(pred5, file = "brms_wiener_predictions5.rda",
+     compress = "xz")
+
 fit5
 plot(marginal_effects(fit5))
 plot(fit5)
