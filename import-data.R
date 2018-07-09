@@ -46,12 +46,12 @@ import_files <- function() {
                             direction == "R" & cue == "R" ~ "congruent",
                             direction == "L" & cue == "R" ~ "incongruent",
                             direction == "R" & cue == "L" ~ "incongruent"),
-        participant = factor(id),
+        id = factor(id),
         correct = case_when(response == 1 & direction == "L" ~ 1,
                             response == 0 & direction == "R" ~ 1,
                             response == 0 & direction == "L" ~ 0,
                             response == 1 & direction == "R" ~ 0),
-        id = match(participant, unique(participant)),
+        # id = match(participant, unique(participant)),
         logrt = log(rt),
         source = factor(source))
     df
@@ -61,3 +61,4 @@ import_files <- function() {
 NigmatullinaData <- import_files()
 write_csv(x = NigmatullinaData, path = "data/nigmatullina.csv", append = FALSE)
 save(NigmatullinaData, file = "data/nigmatullina.Rda")
+
