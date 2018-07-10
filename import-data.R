@@ -38,7 +38,7 @@ import_files <- function() {
         rt = rt/1000, # convert to seconds
         nystagmus = nystagmus/1000,
         # response coded as 1 (left) and 0 (right)
-        response = ifelse(response == "L", 1, 0),
+        resp = ifelse(response == "L", 1, 0),
         direction_num = ifelse(direction == "L", 1, -1), # convert to 1 (right) or -1 (left),
         cue_num = ifelse(cue == "L", 1, ifelse(cue == "R", -1, 0)), # convert to 1 (right), -1 (left) or 0 (none)
         imagery = case_when(cue == "N" ~ "neutral",
@@ -47,10 +47,10 @@ import_files <- function() {
                             direction == "L" & cue == "R" ~ "incongruent",
                             direction == "R" & cue == "L" ~ "incongruent"),
         id = factor(id),
-        correct = case_when(response == 1 & direction == "L" ~ 1,
-                            response == 0 & direction == "R" ~ 1,
-                            response == 0 & direction == "L" ~ 0,
-                            response == 1 & direction == "R" ~ 0),
+        correct = case_when(response == "L" & direction == "L" ~ 1,
+                            response == "R" & direction == "R" ~ 1,
+                            response == "R" & direction == "L" ~ 0,
+                            response == "L" & direction == "R" ~ 0),
         # id = match(participant, unique(participant)),
         logrt = log(rt),
         source = factor(source))
